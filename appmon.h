@@ -6,8 +6,6 @@
 //  Copyright © 2019 specterops. All rights reserved.
 //
 
-
-
 #import <Foundation/Foundation.h>
 #import <EndpointSecurity/EndpointSecurity.h>
 #import <IOKit/kext/KextManager.h>
@@ -61,6 +59,9 @@ typedef void (^EventCallbackBlock)(SecurityEvent* _Nonnull);
 -(void)handleMProtectEventData:(es_event_mprotect_t *_Nonnull)mprotect;
 -(void)handleMMapEventData:(es_event_mmap_t *_Nonnull)mmap;
 -(void)handleKextEventData:(es_message_t *_Nonnull)kext;
+-(void)handleSetExtattrEventData:(es_event_setextattr_t *_Nonnull)extattr;
+-(void)handleSetAttrlistEventData:(es_event_setattrlist_t *_Nonnull)attr;
+-(void)handleSetOwnerEventData:(es_event_setowner_t *_Nonnull)owner;
 
 -(NSString*_Nonnull)nsDateToString;
 
@@ -76,7 +77,7 @@ typedef void (*EventHandlerFn)(char * _Nonnull jsonEventString);
 typedef struct {
     EventHandlerFn _Nonnull f;
 } Callbacks;
-
 void startEventHandler(Callbacks functionCallback);
+
 
 

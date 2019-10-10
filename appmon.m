@@ -12,7 +12,6 @@
 #import <sys/sysctl.h>
 #include <signal.h>
 
-
 EventHandlerFn handler;
 
 //endpoint
@@ -234,8 +233,6 @@ bail:
             self.hostname = [[NSHost currentHost] name];
             self.metadata = [NSMutableDictionary dictionary];
             self.type = event_type_str(message->event_type);
-            // Add the event type to the metadata as well for filtering
-            [self.metadata setValue:event_type_str(message->event_type) forKey:@"event_type"];
             
             [self extractOriginProcessDataForEvent:message->process];
             // Handle the event and extract the event details as metadata
@@ -303,6 +300,15 @@ bail:
                 case ES_EVENT_TYPE_NOTIFY_SIGNAL:
                     [self extractSignalinfo:&message->event.signal];
                     break;
+                case ES_EVENT_TYPE_NOTIFY_SETATTRLIST:
+                    [self handleSetAttrlistEventData:&message->event.setattrlist];
+                    break;
+                case ES_EVENT_TYPE_NOTIFY_SETEXTATTR:
+                    [self handleSetExtattrEventData:&message->event.setextattr];
+                    break;
+                case ES_EVENT_TYPE_NOTIFY_SETOWNER:
+                    [self handleSetOwnerEventData:&message->event.setowner];
+                    break;
                 case ES_EVENT_TYPE_LAST:
                     break; // Don't care
                 default:
@@ -317,7 +323,24 @@ bail:
     return nil;
 }
 
+-(void)handleSetOwnerEventData:(es_event_setowner_t *)owner
+{
+    [self.metadata setValue:convertStringToken(&owner->target->path) forKey:@"filepath"];
+    [self.metadata setValue:[NSNumber numberWithUnsignedInt:owner->uid] forKey:@"uid"];
+    [self.metadata setValue:[NSNumber numberWithUnsignedInt:owner->gid] forKey:@"gid"];
+}
 
+-(void)handleSetExtattrEventData:(es_event_setextattr_t *)extattr
+{
+    [self.metadata setValue:convertStringToken(&extattr->target->path) forKey:@"filepath"];
+    [self.metadata setValue:convertStringToken(&extattr->extattr) forKey:@"extendedattr"];
+}
+
+-(void)handleSetAttrlistEventData:(es_event_setattrlist_t *)attr
+{
+    [self.metadata setValue:convertStringToken(&attr->target->path) forKey:@"filepath"];
+    // TODO: parse the setattrlist struct and retrieve the values
+}
 
 -(void)handleGetTaskEventData:(es_event_get_task_t *)task
 {
@@ -549,7 +572,8 @@ bail:
     [self.metadata setValue:[NSNumber numberWithInt:audit_token_to_euid(process->audit_token)] forKey:@"uid"];
     [self.metadata setValue:convertStringToken(&process->executable->path) forKey:@"binarypath"];
     [self.metadata setValue:[NSNumber numberWithInt:process->ppid] forKey:@"ppid"];
-    [self extractSigningInfo:process forOriginProcess:false];
+    // Redundant
+    //[self extractSigningInfo:process forOriginProcess:false];
 }
 
 -(void)extractOriginProcessDataForEvent:(es_process_t *)process
