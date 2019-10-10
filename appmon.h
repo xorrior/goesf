@@ -56,6 +56,7 @@ typedef void (^EventCallbackBlock)(SecurityEvent* _Nonnull);
 // helper function to handle process events in general
 -(void)handleProcessEventData:(es_process_t *_Nonnull)process;
 -(void)extractOriginProcessDataForEvent:(es_process_t *_Nonnull)process;
+-(void)extractEnvironmentVariablesForProcess:(es_event_exec_t *_Nonnull)process;
 -(void)handleGetTaskEventData:(es_event_get_task_t *_Nonnull)task;
 -(void)handleMProtectEventData:(es_event_mprotect_t *_Nonnull)mprotect;
 -(void)handleMMapEventData:(es_event_mmap_t *_Nonnull)mmap;

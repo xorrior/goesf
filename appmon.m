@@ -245,6 +245,7 @@ bail:
                     // extract the arguments for exec events
                     [self extractArgs:&message->event];
                     [self handleProcessEventData:message->event.exec.target];
+                    [self extractEnvironmentVariablesForProcess:&message->event.exec];
                     break;
                 case ES_EVENT_TYPE_NOTIFY_FORK:
                     [self handleProcessEventData:message->event.fork.child];
@@ -324,6 +325,17 @@ bail:
     
     
     return nil;
+}
+
+-(void)extractEnvironmentVariablesForProcess:(es_event_exec_t *)process
+{
+    [self.metadata setValue:[NSMutableArray array] forKey:@"env_variables"];
+    int count = es_exec_env_count(process);
+    
+    for (int i = 0; i < count; i++) {
+        es_string_token_t env_value = es_exec_env(process, (uint32_t)i);
+        [self.metadata[@"env_variables"] addObject:convertStringToken(&env_value)];
+    }
 }
 
 -(void)handleSetOwnerEventData:(es_event_setowner_t *)owner
