@@ -2,8 +2,9 @@
 //  appmon.h
 //  appmon
 //
-//  Created by Chris Ross on 9/26/19.
-//  Copyright © 2019 specterops. All rights reserved.
+//  Created by Patrick Wardle.
+// Modified by Chris Ross
+// 
 //
 
 #import <Foundation/Foundation.h>
