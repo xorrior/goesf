@@ -1,2 +1,2 @@
 # goesf
-Golang wrapper for the macOS Endpoint Security Framework
+Golang command line tool for the macOS Endpoint Security Framework
