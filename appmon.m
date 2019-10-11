@@ -20,7 +20,7 @@ EventHandlerFn handler;
 //endpoint
 es_client_t* endpointClient = nil;
 
-es_event_type_t events[] = {ES_EVENT_TYPE_NOTIFY_EXEC, ES_EVENT_TYPE_NOTIFY_FORK, ES_EVENT_TYPE_NOTIFY_EXIT, ES_EVENT_TYPE_NOTIFY_GET_TASK, ES_EVENT_TYPE_NOTIFY_CREATE, ES_EVENT_TYPE_NOTIFY_CLOSE, ES_EVENT_TYPE_NOTIFY_OPEN, ES_EVENT_TYPE_NOTIFY_WRITE, ES_EVENT_TYPE_NOTIFY_RENAME, ES_EVENT_TYPE_NOTIFY_UNLINK, ES_EVENT_TYPE_NOTIFY_MPROTECT, ES_EVENT_TYPE_NOTIFY_MMAP, ES_EVENT_TYPE_NOTIFY_LINK, ES_EVENT_TYPE_NOTIFY_KEXTLOAD, ES_EVENT_TYPE_NOTIFY_KEXTUNLOAD, ES_EVENT_TYPE_NOTIFY_IOKIT_OPEN, ES_EVENT_TYPE_NOTIFY_SIGNAL, ES_EVENT_TYPE_NOTIFY_SETATTRLIST, ES_EVENT_TYPE_NOTIFY_SETOWNER, ES_EVENT_TYPE_NOTIFY_SETEXTATTR};
+es_event_type_t events[] = {ES_EVENT_TYPE_NOTIFY_EXEC, ES_EVENT_TYPE_NOTIFY_FORK, ES_EVENT_TYPE_NOTIFY_EXIT, ES_EVENT_TYPE_NOTIFY_GET_TASK, ES_EVENT_TYPE_NOTIFY_CREATE, ES_EVENT_TYPE_NOTIFY_CLOSE, ES_EVENT_TYPE_NOTIFY_OPEN, ES_EVENT_TYPE_NOTIFY_WRITE, ES_EVENT_TYPE_NOTIFY_RENAME, ES_EVENT_TYPE_NOTIFY_UNLINK, ES_EVENT_TYPE_NOTIFY_MMAP, ES_EVENT_TYPE_NOTIFY_LINK, ES_EVENT_TYPE_NOTIFY_KEXTLOAD, ES_EVENT_TYPE_NOTIFY_KEXTUNLOAD, ES_EVENT_TYPE_NOTIFY_IOKIT_OPEN, ES_EVENT_TYPE_NOTIFY_SETATTRLIST, ES_EVENT_TYPE_NOTIFY_SETOWNER, ES_EVENT_TYPE_NOTIFY_SETEXTATTR};
 
 //helper functions
 
@@ -29,7 +29,6 @@ NSString* event_type_str(const es_event_type_t event_type) {
     switch(event_type) {
         case ES_EVENT_TYPE_NOTIFY_GET_TASK: return @"ES_EVENT_TYPE_NOTIFY_GET_TASK";
         case ES_EVENT_TYPE_NOTIFY_MMAP: return @"ES_EVENT_TYPE_NOTIFY_MMAP";
-        case ES_EVENT_TYPE_NOTIFY_MPROTECT: return @"ES_EVENT_TYPE_NOTIFY_MPROTECT";
         case ES_EVENT_TYPE_NOTIFY_EXEC: return @"ES_EVENT_NOTIFY_EXEC";
         case ES_EVENT_TYPE_NOTIFY_FORK: return @"ES_EVENT_NOTIFY_FORK";
         case ES_EVENT_TYPE_NOTIFY_EXIT: return @"ES_EVENT_NOTIFY_EXIT";
@@ -43,7 +42,6 @@ NSString* event_type_str(const es_event_type_t event_type) {
         case ES_EVENT_TYPE_NOTIFY_KEXTLOAD: return @"ES_EVENT_TYPE_NOTIFY_KEXTLOAD";
         case ES_EVENT_TYPE_NOTIFY_KEXTUNLOAD: return @"ES_EVENT_TYPE_NOTIFY_KEXTUNLOAD";
         case ES_EVENT_TYPE_NOTIFY_IOKIT_OPEN: return @"ES_EVENT_TYPE_NOTIFY_IOKIT_OPEN";
-        case ES_EVENT_TYPE_NOTIFY_SIGNAL: return @"ES_EVENT_TYPE_NOTIFY_SIGNAL";
         case ES_EVENT_TYPE_NOTIFY_SETATTRLIST: return @"ES_EVENT_TYPE_NOTIFY_SETATTRLIST";
         case ES_EVENT_TYPE_NOTIFY_SETOWNER: return @"ES_EVENT_TYPE_NOTIFY_SETOWNER";
         case ES_EVENT_TYPE_NOTIFY_SETEXTATTR: return @"ES_EVENT_TYPE_NOTIFY_SETEXTATTR";
@@ -254,9 +252,6 @@ bail:
                 case ES_EVENT_TYPE_NOTIFY_MMAP:
                     [self handleMMapEventData:&message->event.mmap];
                     break;
-                case ES_EVENT_TYPE_NOTIFY_MPROTECT:
-                    [self handleMProtectEventData:&message->event.mprotect];
-                    break;
                 case ES_EVENT_TYPE_NOTIFY_GET_TASK:
                     [self handleGetTaskEventData:&message->event.get_task];
                     break;
@@ -324,7 +319,7 @@ bail:
     [self.metadata setValue:[NSMutableArray array] forKey:@"env_variables"];
     int count = es_exec_env_count(process);
     
-    for (int i = 0; i < count; i++) {
+    for (int i = 1; i <= count; i++) {
         es_string_token_t env_value = es_exec_env(process, (uint32_t)i);
         [self.metadata[@"env_variables"] addObject:convertStringToken(&env_value)];
     }
@@ -371,109 +366,6 @@ bail:
     }
 }
 
--(void)extractSignalinfo:(es_event_signal_t *)sig
-{
-    switch (sig->sig) {
-        case SIGHUP:
-            [self.metadata setValue:@"SIGHUP" forKey:@"signal"];
-            break;
-        case SIGINT:
-            [self.metadata setValue:@"SIGINT" forKey:@"signal"];
-            break;
-        case SIGQUIT:
-            [self.metadata setValue:@"SIGQUIT" forKey:@"signal"];
-            break;
-        case SIGILL:
-            [self.metadata setValue:@"SIGILL" forKey:@"signal"];
-            break;
-        case SIGTRAP:
-            [self.metadata setValue:@"SIGTRAP" forKey:@"signal"];
-            break;
-        case SIGABRT:
-            [self.metadata setValue:@"SIGABRT" forKey:@"signal"];
-            break;
-        case SIGEMT:
-            [self.metadata setValue:@"SIGEMT" forKey:@"signal"];
-            break;
-        case SIGFPE:
-            [self.metadata setValue:@"SIGFPE" forKey:@"signal"];
-            break;
-        case SIGKILL:
-            [self.metadata setValue:@"SIGKILL" forKey:@"signal"];
-            break;
-        case SIGBUS:
-            [self.metadata setValue:@"SIGBUS" forKey:@"signal"];
-            break;
-        case SIGSEGV:
-            [self.metadata setValue:@"SIGSEGV" forKey:@"signal"];
-            break;
-        case SIGSYS:
-            [self.metadata setValue:@"SIGSYS" forKey:@"signal"];
-            break;
-        case SIGPIPE:
-            [self.metadata setValue:@"SIGPIPE" forKey:@"signal"];
-            break;
-        case SIGALRM:
-            [self.metadata setValue:@"SIGALRM" forKey:@"signal"];
-            break;
-        case SIGTERM:
-            [self.metadata setValue:@"SIGTERM" forKey:@"signal"];
-            break;
-        case SIGURG:
-            [self.metadata setValue:@"SIGURG" forKey:@"signal"];
-            break;
-        case SIGSTOP:
-            [self.metadata setValue:@"SIGSTOP" forKey:@"signal"];
-            break;
-        case SIGTSTP:
-            [self.metadata setValue:@"SIGTSTP" forKey:@"signal"];
-            break;
-        case SIGCONT:
-            [self.metadata setValue:@"SIGCONT" forKey:@"signal"];
-            break;
-        case SIGCHLD:
-            [self.metadata setValue:@"SIGCHLD" forKey:@"signal"];
-            break;
-        case SIGTTIN:
-            [self.metadata setValue:@"SIGTTIN" forKey:@"signal"];
-            break;
-        case SIGTTOU:
-            [self.metadata setValue:@"SIGTTOU" forKey:@"signal"];
-            break;
-        case SIGIO:
-            [self.metadata setValue:@"SIGIO" forKey:@"signal"];
-            break;
-        case SIGXCPU:
-            [self.metadata setValue:@"SIGXCPU" forKey:@"signal"];
-            break;
-        case SIGXFSZ:
-            [self.metadata setValue:@"SIGXFSZ" forKey:@"signal"];
-            break;
-        case SIGVTALRM:
-            [self.metadata setValue:@"SIGVTALRM" forKey:@"signal"];
-            break;
-        case SIGPROF:
-            [self.metadata setValue:@"SIGPROF" forKey:@"signal"];
-            break;
-        case SIGWINCH:
-            [self.metadata setValue:@"SIGWINCH" forKey:@"signal"];
-            break;
-        case SIGINFO:
-            [self.metadata setValue:@"SIGINFO" forKey:@"signal"];
-            break;
-        case SIGUSR1:
-            [self.metadata setValue:@"SIGUSR1" forKey:@"signal"];
-            break;
-        case SIGUSR2:
-            [self.metadata setValue:@"SIGUSR2" forKey:@"signal"];
-            break;
-        default:
-            break;
-    }
-    
-    [self extractSigningInfo:sig->target forOriginProcess:false];
-}
-
 -(void)handleKextEventData:(es_message_t *)kext
 {
     NSString *kextID;
@@ -501,37 +393,6 @@ bail:
         // If the path is null
         // TODO: KextManagerCreateURLForBundleIdentifier function supposedly only works for kexts that are located in /System/Library/KernelExtensions/. Need logic to handle third-party kexts
     }
-}
-
--(void)handleMProtectEventData:(es_event_mprotect_t *)mprotect
-{
-    //obtain the source address for mprotect
-    
-    [self.metadata setValue:[NSNumber numberWithUnsignedLongLong:mprotect->address] forKey:@"startingaddress"];
-    
-    // obtain the length of the memory region to be protected
-    [self.metadata setValue:[NSNumber numberWithUnsignedLongLong:mprotect->size] forKey:@"size"];
-    
-    // Obtain the protection flags used for the memory region
-    [self.metadata setValue:[NSMutableArray array] forKey:@"mprotectflags"];
-    
-    if ((PROT_EXEC & mprotect->protection) == PROT_EXEC) {
-        [self.metadata[@"mmapprotection"] addObject:@"PROT_EXEC"];
-    }
-    
-    if ((PROT_WRITE & mprotect->protection) == PROT_WRITE) {
-        [self.metadata[@"mmapprotection"] addObject:@"PROT_WRITE"];
-    }
-    
-    if ((PROT_READ & mprotect->protection) == PROT_READ) {
-        [self.metadata[@"mmapprotection"] addObject:@"PROT_READ"];
-    }
-    
-    if ((PROT_NONE & mprotect->protection) == PROT_NONE) {
-        [self.metadata[@"mmapprotection"] addObject:@"PROT_NONE"];
-    }
-    
-    
 }
 
 -(void)handleMMapEventData:(es_event_mmap_t *)mmap

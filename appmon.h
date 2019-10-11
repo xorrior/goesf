@@ -58,7 +58,6 @@ typedef void (^EventCallbackBlock)(SecurityEvent* _Nonnull);
 -(void)extractOriginProcessDataForEvent:(es_process_t *_Nonnull)process;
 -(void)extractEnvironmentVariablesForProcess:(es_event_exec_t *_Nonnull)process;
 -(void)handleGetTaskEventData:(es_event_get_task_t *_Nonnull)task;
--(void)handleMProtectEventData:(es_event_mprotect_t *_Nonnull)mprotect;
 -(void)handleMMapEventData:(es_event_mmap_t *_Nonnull)mmap;
 -(void)handleKextEventData:(es_message_t *_Nonnull)kext;
 -(void)handleSetExtattrEventData:(es_event_setextattr_t *_Nonnull)extattr;
