@@ -64,6 +64,7 @@ typedef void (^EventCallbackBlock)(SecurityEvent* _Nonnull);
 -(void)handleSetExtattrEventData:(es_event_setextattr_t *_Nonnull)extattr;
 -(void)handleSetAttrlistEventData:(es_event_setattrlist_t *_Nonnull)attr;
 -(void)handleSetOwnerEventData:(es_event_setowner_t *_Nonnull)owner;
+-(void)extractFileOpenFlags:(es_event_open_t *_Nonnull)open;
 
 -(NSString*_Nonnull)nsDateToString;
 

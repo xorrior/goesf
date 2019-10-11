@@ -12,6 +12,7 @@
 #import <libproc.h>
 #import <bsm/libbsm.h>
 #import <sys/sysctl.h>
+#import <sys/fcntl.h>
 #include <signal.h>
 
 EventHandlerFn handler;
@@ -362,6 +363,21 @@ bail:
     //obtain all the target process info. Just re-use the handleProcessEvent function
     [self handleProcessEventData:task->target];
     
+}
+
+-(void)extractFileOpenFlags:(es_event_open_t *)open
+{
+    [self.metadata setValue:[NSMutableArray array] forKey:@"flags"];
+    
+    int32_t value = open->fflag;
+    
+    if ((FREAD & value) == FREAD) {
+        [self.metadata[@"flags"] addObject:@"FREAD"];
+    }
+    
+    if ((FWRITE & value) == FWRITE) {
+        [self.metadata[@"flags"] addObject:@"FWRITE"];
+    }
 }
 
 -(void)extractSignalinfo:(es_event_signal_t *)sig
