@@ -317,20 +317,12 @@ bail:
 -(void)extractEnvironmentVariablesForProcess:(es_event_exec_t *)process
 {
     [self.metadata setValue:[NSMutableArray array] forKey:@"env_variables"];
-<<<<<<< Updated upstream
-    int count = es_exec_env_count(process);
-    
-    for (int i = 1; i <= count; i++) {
-        es_string_token_t env_value = es_exec_env(process, (uint32_t)i);
-        [self.metadata[@"env_variables"] addObject:convertStringToken(&env_value)];
-=======
     uint32_t count = es_exec_env_count(process);
     if (count > 0) {
         for (uint32_t i = 0; i < count; i++) {
             es_string_token_t env_value = es_exec_env(process, (uint32_t)i);
             [self.metadata[@"env_variables"] addObject:convertStringToken(&env_value)];
         }
->>>>>>> Stashed changes
     }
     
 }
